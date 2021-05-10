@@ -2,9 +2,11 @@ import React, { Component } from 'react'
 
 export default class Pagination extends Component {
   render() {
-    const {page, onChangePage} = this.props;
+    const {page, total_pages, onChangePage} = this.props;
 
     return (
+      <>
+      <p>{page} из {total_pages}</p>
       <div className="btn-group">
         <button 
           type="button"
@@ -26,6 +28,7 @@ export default class Pagination extends Component {
           Вперёд
         </button>
       </div>
+      </>
     )
   }
 }
