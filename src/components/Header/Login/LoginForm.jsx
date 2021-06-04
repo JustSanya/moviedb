@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import classNames from 'classnames';
 
 import { API_URL, API_KEY_3 } from '../../../api/api';
 
@@ -18,6 +19,7 @@ export default class LoginForm extends React.Component {
       [name]: value,
       errors: {
         ...prevState.errors,
+        base: null,
         [name]: null,
       },
     }));
@@ -67,10 +69,18 @@ export default class LoginForm extends React.Component {
       } = await axios.post(`${API_URL}/authentication/session/new?api_key=${API_KEY_3}`, {
         request_token: validatedTokenData.request_token,
       });
-      console.log(session_id);
-      this.setState({
-        submitting: false,
-      });
+      this.props.updateSessionId(session_id);
+      const { data: user } = await axios.get(
+        `${API_URL}/account?api_key=${API_KEY_3}&session_id=${session_id}`,
+      );
+      this.setState(
+        {
+          submitting: false,
+        },
+        () => {
+          this.props.updateUser(user);
+        },
+      );
     } catch (error) {
       console.dir(error);
       this.setState({
@@ -97,6 +107,11 @@ export default class LoginForm extends React.Component {
     }
   };
 
+  getClassForInput = (key) =>
+    classNames('form-control', {
+      'is-invalid': this.state.errors[key],
+    });
+
   render() {
     const { username, password, errors, submitting } = this.state;
     return (
@@ -107,7 +122,7 @@ export default class LoginForm extends React.Component {
             <label htmlFor="username">Пользователь</label>
             <input
               type="text"
-              className="form-control"
+              className={this.getClassForInput('username')}
               id="username"
               placeholder="Пользователь"
               name="username"
@@ -121,7 +136,7 @@ export default class LoginForm extends React.Component {
             <label htmlFor="password">Пароль</label>
             <input
               type="password"
-              className="form-control"
+              className={this.getClassForInput('password')}
               id="password"
               placeholder="Пароль"
               name="password"
